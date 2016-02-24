@@ -118,13 +118,13 @@ include_directories(
 	"${PROJECT_SOURCE_DIR}/include"
 )
 
-add_executable(publisher src/publisher.cpp)
-target_link_libraries(publisher ${catkin_LIBRARIES})
-add_dependencies(publisher trollnode_generate_messages_cpp)
+add_executable(publishExpression src/publishExpression.cpp)
+target_link_libraries(publishExpression ${catkin_LIBRARIES})
+add_dependencies(publishExpression trollnode_generate_messages_cpp)
 
-add_executable(tcp_client src/tcp_client.cpp)
-target_link_libraries(tcp_client ${catkin_LIBRARIES})
-add_dependencies(tcp_client trollnode_generate_messages_cpp)
+add_executable(setExpression src/setExpression.cpp)
+target_link_libraries(setExpression ${catkin_LIBRARIES})
+add_dependencies(setExpression trollnode_generate_messages_cpp)
 ## Declare a C++ library
 # add_library(trollnode
 #   src/${PROJECT_NAME}/trollnode.cpp

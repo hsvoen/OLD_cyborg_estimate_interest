@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>trollnode</name>
-  <version>0.0.0</version>
+  <version>0.0.3</version>
   <description>The trollnode package</description>
 
 
@@ -9,11 +9,8 @@
 
   <license>BSD</license>
 
-  <!-- <url type="repository">https://github.com/thentnucyborg</url> -->
-
-
-
-  <!-- <author email="havard.svoen@gmail.com">Havard Svoen</author> -->
+  <url type="repository">https://github.com/thentnucyborg/trollnode.git</url> 
+  <author email="havard.svoen@gmail.com">Havard Svoen</author> 
 
 
   <!-- The *_depend tags are used to specify dependencies -->
@@ -21,19 +18,23 @@
   <!-- Examples: -->
   <!-- Use build_depend for packages you need at compile time: -->
   <build_depend>message_generation</build_depend> 
-  <!-- Use buildtool_depend for build tool packages: -->
-  <!--   <buildtool_depend>catkin</buildtool_depend> -->
-  <!-- Use run_depend for packages you need at runtime: -->
-     <run_depend>message_runtime</run_depend> 
-  <!-- Use test_depend for packages you need only for testing: -->
-  <!--   <test_depend>gtest</test_depend> -->
+  <run_depend>message_runtime</run_depend> 
+ 
   <buildtool_depend>catkin</buildtool_depend>
+  
   <build_depend>roscpp</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>image_transport</build_depend>
+  <!--<build_depend>cv_bridge</build_depend> -->
+  <build_depend>opencv2</build_depend> 
+  
   <run_depend>roscpp</run_depend>
   <run_depend>std_msgs</run_depend>
-
-
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>image_transport</run_depend>
+  <!--<run_depend>cv_bridge</run_depend> -->
+  <run_depend>opencv2</run_depend> 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->

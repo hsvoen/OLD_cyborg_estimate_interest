@@ -7,7 +7,11 @@ project(trollnode)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  sensor_msgs
   message_generation
+  image_transport
+  
+  
 )
 
 ## System dependencies are found with CMake's conventions
@@ -67,6 +71,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
+   sensor_msgs
  )
 
 ################################################
@@ -101,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES trollnode
-   CATKIN_DEPENDS roscpp std_msgs
+   CATKIN_DEPENDS roscpp std_msgs sensor_msgs image_transport  
 #  DEPENDS system_lib
    CATKIN_DEPENDS message_runtime
 )

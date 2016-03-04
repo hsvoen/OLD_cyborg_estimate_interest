@@ -13,7 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   
   
 )
-
+find_package( OpenCV  REQUIRED )
+#find_package( OpenCV 2.4.11 REQUIRED )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -120,7 +121,8 @@ catkin_package(
 # include_directories(include)
 include_directories(
   ${catkin_INCLUDE_DIRS}
-	"${PROJECT_SOURCE_DIR}/include"
+  "${PROJECT_SOURCE_DIR}/include"
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 add_executable(publishExpression src/publishExpression.cpp)
@@ -128,8 +130,14 @@ target_link_libraries(publishExpression ${catkin_LIBRARIES})
 add_dependencies(publishExpression trollnode_generate_messages_cpp)
 
 add_executable(setExpression src/setExpression.cpp)
-target_link_libraries(setExpression ${catkin_LIBRARIES})
+target_link_libraries(setExpression ${catkin_LIBRARIES} ${OpenCV_LIBS})
 add_dependencies(setExpression trollnode_generate_messages_cpp)
+
+
+#message(STATUS ${OpenCV_INCLUDE_DIRS})
+
+#target_link_libraries(trollnode ${OpenCV_LIBS})
+
 ## Declare a C++ library
 # add_library(trollnode
 #   src/${PROJECT_NAME}/trollnode.cpp

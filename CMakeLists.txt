@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   message_generation
   image_transport
-  
+  cv_bridge
   
 )
 find_package( OpenCV  REQUIRED )
@@ -107,7 +107,7 @@ find_package( OpenCV  REQUIRED )
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES trollnode
-   CATKIN_DEPENDS roscpp std_msgs sensor_msgs image_transport  
+   CATKIN_DEPENDS roscpp std_msgs sensor_msgs image_transport  cv_bridge
 #  DEPENDS system_lib
    CATKIN_DEPENDS message_runtime
 )

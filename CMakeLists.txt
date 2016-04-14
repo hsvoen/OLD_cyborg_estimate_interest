@@ -6,6 +6,7 @@ project(trollnode)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  rospy
   std_msgs
   sensor_msgs
   message_generation
@@ -107,7 +108,7 @@ find_package( OpenCV  REQUIRED )
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES trollnode
-   CATKIN_DEPENDS roscpp std_msgs sensor_msgs image_transport  cv_bridge
+   CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs image_transport  cv_bridge
 #  DEPENDS system_lib
    CATKIN_DEPENDS message_runtime
 )

@@ -9,9 +9,11 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   sensor_msgs
+  geometry_msgs
   message_generation
   image_transport
   cv_bridge
+  k2_client
   
 )
 find_package( OpenCV  REQUIRED )
@@ -74,6 +76,7 @@ find_package( OpenCV  REQUIRED )
    DEPENDENCIES
    std_msgs
    sensor_msgs
+   geometry_msgs
  )
 
 ################################################
@@ -107,8 +110,8 @@ find_package( OpenCV  REQUIRED )
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES trollnode
-   CATKIN_DEPENDS roscpp rospy std_msgs sensor_msgs image_transport  cv_bridge
+  LIBRARIES trollnode
+   CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs sensor_msgs image_transport  cv_bridge
 #  DEPENDS system_lib
    CATKIN_DEPENDS message_runtime
 )
@@ -126,6 +129,13 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
+## Declare a C++ library
+ add_library(trollnode
+   #src/${PROJECT_NAME}/trollnode.cpp
+   src/Person.cpp
+ )
+
+
 add_executable(publishExpression src/publishExpression.cpp)
 target_link_libraries(publishExpression ${catkin_LIBRARIES})
 add_dependencies(publishExpression trollnode_generate_messages_cpp)
@@ -135,14 +145,14 @@ target_link_libraries(setExpression ${catkin_LIBRARIES} ${OpenCV_LIBS})
 add_dependencies(setExpression trollnode_generate_messages_cpp)
 
 
+add_executable(estimateInterest src/estimateInterest.cpp src/Person.cpp)
+target_link_libraries(estimateInterest ${catkin_LIBRARIES} )
+add_dependencies(estimateInterest src/Person.cpp trollnode_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 #message(STATUS ${OpenCV_INCLUDE_DIRS})
 
 #target_link_libraries(trollnode ${OpenCV_LIBS})
 
-## Declare a C++ library
-# add_library(trollnode
-#   src/${PROJECT_NAME}/trollnode.cpp
-# )
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

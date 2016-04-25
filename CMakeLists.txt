@@ -55,6 +55,7 @@ find_package( OpenCV  REQUIRED )
  add_message_files(
    FILES
    Expression.msg
+   Interested.msg
  )
 
 ## Generate services in the 'srv' folder

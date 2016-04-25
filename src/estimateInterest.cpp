@@ -7,76 +7,22 @@
 #include <vector>
 
 #include "trollnode/Person.h"
+#include "trollnode/Interested.h"
 
 std::string bodyTopicName = "/head/kinect2/bodyArray";
+std::string interest_topic_name = "person_interest";
 
-//Forward declaration
-//class Position;
-//class Person;
 
 
 
 
 /*================ INIT ============*/
-int kinect_height = 0.5; //height of the kinect in m
 
 
 //=====================================
-Person person_array [6]{Person(), Person(), Person(), Person(), Person(), Person()};
+//Person person_array [6]{Person(0), Person(1), Person(2), Person(3), Person(4), Person(5)};
 
-
-/*
-class Position{
-	geometry_msgs::Point head;
-	std_msgs::Header header;
-
-public:
-	Position(geometry_msgs::Point pos, std_msgs::Header stamp)
-	{
-		head = pos;
-		header = stamp;
-	}
-};
-
-
-
-class Person 
-{
-	int number;
-	bool isTracked;
-	float speed;
-	std::vector<Position> positions;
-
-public:
-	Person() {isTracked = false; speed = 0;}
-	Person(bool tracked) {isTracked = tracked;}
-
-	int add_position(Position pos){ positions.push_back(pos);}
-	void is_tracked(){isTracked = true;}
-};
-
-*/
-
-
-
-
-float distance_from_cyborg_calc(geometry_msgs::Point position)
-{
-	return sqrt( pow(position.x,2) + pow(position.y,2) + pow( abs(position.z ),2));
-}
-
-geometry_msgs::Point vector_between_points(geometry_msgs::Point pos1, geometry_msgs::Point pos2)
-{
-	geometry_msgs::Point vector;
-
-	vector.x = pos2.x - pos1.x;
-	vector.y = pos2.y - pos1.y;
-	vector.z = pos2.z - pos1.z;
-
-	return vector;
-
-}
-
+Person person_array [6]{Person(0), Person(1), Person(2), Person(3), Person(4), Person(5)};
 
 
 void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
@@ -88,7 +34,7 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 
 		if(body_array->bodies[i].isTracked)
 		{
-			person_array[i].is_tracked();
+			person_array[i].tracked();
 			person_array[i].add_position(Position(body_array->bodies[i].jointPositions[3].position,body_array->bodies[i].jointPositions[0].position, body_array->bodies[i].header.stamp.toSec()));
 
 
@@ -96,46 +42,47 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 
 
 			ROS_INFO("Person: %d, time: [%f]",i, body_array->bodies[i].header.stamp.toSec());
+			ROS_INFO("Speed: [%f], distance [%f], ", person_array[i].get_speed(), person_array[i].get_distance_to_cyborg());
+
+			if(person_array[i].is_interested())
+				ROS_INFO("Person is interested");
+			else
+				ROS_INFO("Person is not interested");
 
 			if(person_array[i].is_slowing_down())
 				ROS_INFO("Slowing down.");
+			else if (person_array[i].is_moving_faster())
+				ROS_INFO("speeding up");
 			else
-				ROS_INFO("Not slowing down.");
+				ROS_INFO("Keeping speed");
 
 			if(person_array[i].is_stationary())
 			{
-
-				ROS_INFO("Person is not moving, speed: [%.3f]",person_array[i].get_speed());
+				ROS_INFO("Person is stationary");
 			}
 			else
-				ROS_INFO("Person is moving, speed: [%.3f]",person_array[i].get_speed());
+				ROS_INFO("Person is moving");
 
 			if(person_array[i].is_approaching())
-				ROS_INFO("Person is approaching  the Cyborg, distance: [%f]", person_array[i].get_distance_to_cyborg());
+				ROS_INFO("Approaching the Cyborg");
 			else if (person_array[i].is_leaving())
-				ROS_INFO("Person is leaving the Cyborg, distance: [%f]", person_array[i].get_distance_to_cyborg());
+				ROS_INFO("Leaving the Cyborg");
+			else
+				ROS_INFO("Keeping distance");
 
 
+			//print position
+			person_array[i].get_position().print_position();
+			ROS_INFO("Distance from Cyborg:[%.3f]", person_array[i].get_distance_to_cyborg() );
 
-			ROS_INFO("Position");
-			ROS_INFO("Head:[%.3f,%.3f,%.3f]",  body_array->bodies[i].jointPositions[3].position.x, body_array->bodies[i].jointPositions[3].position.y, body_array->bodies[i].jointPositions[3].position.z);
-			
-			ROS_INFO("Future position: [%.3f,%.3f,%.3f]", person_array[i].guess_future_position().head.x,person_array[i].guess_future_position().head.y, person_array[i].guess_future_position().head.z);
-			//ROS_INFO("Left shoulder:[%.3f,%.3f,%.3f]",  body_array->bodies[i].jointPositions[4].position.x, body_array->bodies[i].jointPositions[4].position.y, body_array->bodies[i].jointPositions[4].position.z);
-			//ROS_INFO("Right shoulder:[%.3f,%.3f,%.3f]", body_array->bodies[i].jointPositions[8].position.x, body_array->bodies[i].jointPositions[8].position.y, body_array->bodies[i].jointPositions[8].position.z);
+			//ROS_INFO("Estimates:");
+			ROS_INFO("Estimated future pos, 1 sec:");
+			person_array[i].estimate_future_position(1).print_position();
+			ROS_INFO("Distance to cyborg: [%.3f]\n",person_array[i].estimate_future_position(1).get_distance_to_cyborg());
 
-			//ROS_INFO("Orientation:");
-			//ROS_INFO("Head: [%.3f, %.3f, %.3f, %.3f]", body_array->bodies[i].jointOrientations[3].orientation.x, body_array->bodies[i].jointOrientations[3].orientation.y, body_array->bodies[i].jointOrientations[3].orientation.z, body_array->bodies[i].jointOrientations[3].orientation.w);
-			//ROS_INFO("Spine base: [%.3f, %.3f, %.3f, %.3f]", body_array->bodies[i].jointOrientations[0].orientation.x, body_array->bodies[i].jointOrientations[0].orientation.y, body_array->bodies[i].jointOrientations[0].orientation.z, body_array->bodies[i].jointOrientations[0].orientation.w);
-			//ROS_INFO("Neck: [%.3f, %.3f, %.3f, %.3f]", body_array->bodies[i].jointOrientations[2].orientation.x, body_array->bodies[i].jointOrientations[2].orientation.y, body_array->bodies[i].jointOrientations[2].orientation.z, body_array->bodies[i].jointOrientations[2].orientation.w);
-
-			ROS_INFO("Distance from Cyborg:");
-			ROS_INFO("Head: [%.3f]", person_array[i].get_distance_to_cyborg());
-			//ROS_INFO("Left Shoulder: [%.3f]", distance_from_cyborg_calc(body_array->bodies[i].jointPositions[4].position));
-			//ROS_INFO("Right Shoulder: [%.3f]", distance_from_cyborg_calc(body_array->bodies[i].jointPositions[8].position));
-			ROS_INFO("Spine base: [%.3f]", distance_from_cyborg_calc(body_array->bodies[i].jointPositions[0].position));
-			//ROS_INFO("Spine mid: [%.3f]", distance_from_cyborg_calc(body_array->bodies[i].jointPositions[1].position));
 		}
+		else
+			person_array[i].not_tracked();
 
 	}
 	if(people_tracked > 0)
@@ -178,15 +125,47 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 int main(int argc, char **argv)
 {
 
-  ros::init(argc, argv, "listener");
+	ros::init(argc, argv, "interest");
 
-  ros::NodeHandle n;
+	ros::NodeHandle n;
 
 
-  ros::Subscriber sub = n.subscribe(bodyTopicName, 100, bodyListener);
+	ros::Subscriber sub = n.subscribe(bodyTopicName, 10, bodyListener);
 
-  ros::spin();
+	ros::Publisher interest_publisher = n.advertise<trollnode::Interested>(interest_topic_name, 10); 
+	ros::Rate loop_rate(0.5);
 
-  return 0;
+	while(ros::ok())
+	{
+		trollnode::Interested interested_msg;
+
+
+		
+		for (int i = 0; i < 6; i++)
+		{
+			if (person_array[i].is_tracked() && person_array[i].is_interested())
+			{
+				
+				interested_msg.interested_person.push_back(true);
+			}
+			else
+				interested_msg.interested_person.push_back(false);
+			
+		}
+		
+	
+
+
+    interest_publisher.publish(interested_msg);
+
+    ros::spinOnce();
+
+    loop_rate.sleep();
+
+	}
+	
+
+
+	return 0;
 }
 

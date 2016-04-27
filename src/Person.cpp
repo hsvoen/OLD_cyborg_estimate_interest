@@ -332,7 +332,19 @@ bool Person::is_leaving()
 
 }
 
+//updates position object with history states.
+void Person::add_history_to_pos()
+{
 
+	positions.back().speed = get_speed();
+	positions.back().cyborg_distance = get_distance_to_cyborg();
+	positions.back().stationary = is_stationary();
+	positions.back().slowing_down = is_slowing_down();
+	positions.back().speeding_up = is_moving_faster();
+	positions.back().moving_closer = is_moving_closer();
+	positions.back().moving_away = is_moving_away();
+
+}
 
 
 /*

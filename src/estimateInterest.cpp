@@ -8,9 +8,11 @@
 
 #include "trollnode/Person.h"
 #include "trollnode/Interested.h"
-
+#include "trollnode/PersonStatus.h"
+#include "trollnode/PersonArray.h"
 std::string bodyTopicName = "/head/kinect2/bodyArray";
 std::string interest_topic_name = "person_interest";
+std::string people_status_topic_name = "person_status";
 
 
 
@@ -133,23 +135,41 @@ int main(int argc, char **argv)
 	ros::Subscriber sub = n.subscribe(bodyTopicName, 10, bodyListener);
 
 	ros::Publisher interest_publisher = n.advertise<trollnode::Interested>(interest_topic_name, 10); 
+	ros::Publisher people_status_publisher = n.advertise<trollnode::PersonArray>(people_status_topic_name, 10); 
+
 	ros::Rate loop_rate(0.5);
 
 	while(ros::ok())
 	{
 		trollnode::Interested interested_msg;
+		trollnode::PersonArray status_list_msg;
 
 
 		
 		for (int i = 0; i < 6; i++)
 		{
+			trollnode::PersonStatus person_msg;
 			if (person_array[i].is_tracked() && person_array[i].is_interested())
 			{
-				
+				person_msg.tracked = true;
+				person_msg.interested = person_array[i].is_interested();
+				person_msg.approaching = person_array[i].is_approaching();
+				person_msg.leaving = person_array[i].is_leaving();
+				person_msg.stationary = person_array[i].is_stationary();
+				person_msg.speed = person_array[i].get_speed();
+				person_msg.distance = person_array[i].get_distance_to_cyborg();
+
+				status_list_msg.people.push_back(person_msg);
 				interested_msg.interested_person.push_back(true);
 			}
 			else
+			{
 				interested_msg.interested_person.push_back(false);
+
+				person_msg.tracked = false;
+				status_list_msg.people.push_back(person_msg);
+
+			}
 			
 		}
 		
@@ -157,7 +177,7 @@ int main(int argc, char **argv)
 
 
     interest_publisher.publish(interested_msg);
-
+    people_status_publisher.publish(status_list_msg);
     ros::spinOnce();
 
     loop_rate.sleep();

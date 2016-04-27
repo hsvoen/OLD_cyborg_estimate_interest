@@ -21,6 +21,7 @@ find_package( OpenCV  REQUIRED )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -56,6 +57,8 @@ find_package( OpenCV  REQUIRED )
    FILES
    Expression.msg
    Interested.msg
+   PersonArray.msg
+   PersonStatus.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -140,6 +143,11 @@ include_directories(
 add_executable(publishExpression src/publishExpression.cpp)
 target_link_libraries(publishExpression ${catkin_LIBRARIES})
 add_dependencies(publishExpression trollnode_generate_messages_cpp)
+
+add_executable(greetingNode src/greetingNode.cpp)
+target_link_libraries(greetingNode ${catkin_LIBRARIES})
+add_dependencies(greetingNode trollnode_generate_messages_cpp)
+
 
 add_executable(setExpression src/setExpression.cpp)
 target_link_libraries(setExpression ${catkin_LIBRARIES} ${OpenCV_LIBS})

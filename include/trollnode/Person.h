@@ -20,6 +20,13 @@ class Person;
 
 class Position{
 
+
+
+public:
+	geometry_msgs::Point head;
+	geometry_msgs::Point spine_base;
+	double time;
+
 	//History of person at moment
 	double speed;
 	double cyborg_distance;
@@ -31,11 +38,6 @@ class Position{
 	bool moving_closer;
 	bool moving_away;
 
-public:
-	geometry_msgs::Point head;
-	geometry_msgs::Point spine_base;
-	double time;
-
 
 	Position(geometry_msgs::Point head_pos, geometry_msgs::Point spine_base_pos , double seconds)
 	{
@@ -45,6 +47,8 @@ public:
 	}
 	Position(){}
 	Position(const Position &pos){head = pos.head; spine_base = pos.spine_base; time = pos.time;}
+
+
 
 	Position add_vector(Position vector);
 	Position get_vector_to_pos(Position pos);
@@ -75,7 +79,8 @@ public:
 	void tracked(){isTracked = true;}
 	void not_tracked(){isTracked = false; positions.clear(); }
 
-	int add_position(Position pos){ positions.push_back(pos);}
+	int add_position(Position pos){ positions.push_back(pos); add_history_to_pos();}
+	void add_history_to_pos();
 	
 	bool is_tracked(){return isTracked;}
 	bool is_stationary();

@@ -2,7 +2,7 @@
 #include "trollnode/Person.h"
 
 
-
+//============================== Position class functions =================
 
 Position Position::add_vector(Position vector)
 {
@@ -36,6 +36,7 @@ Position Position::get_vector_to_pos(Position pos)
 	return vector;
 }
 
+//For multiplying a speed vector with time to get estimated future position
 Position Position::multiply_vector_with_number(double number)
 {
 
@@ -61,6 +62,7 @@ double Position::get_distance_to_position(Position pos)
 	return (dist_head + dist_spine)/2;
 }
 
+
 /*Returns avg distance of head and spine to [0,0,0]*/
 double Position::get_distance_to_cyborg()
 {
@@ -68,7 +70,6 @@ double Position::get_distance_to_cyborg()
 	return (sqrt ( pow(head.x,2) + pow(head.y,2) + pow( head.z,2)) + sqrt(pow(spine_base.x,2) + pow(spine_base.y,2) + pow(spine_base.z,2) ) )/2 ;
 
 }
-
 
 void Position::print_position()
 {
@@ -82,20 +83,13 @@ void Position::print_position()
 
 
 
-
-
-
-/*===================== PERSON CLASS FUNCTIONS =============================================================*/
+/*===================== PERSON CLASS FUNCTIONS =======================================================*/
 
 
 
 double Person::get_time_diff(Position pos1, Position pos2)
 {
-	//printf("Get time diff: Time1: [%f], Time 2: [%f]\n", pos1.time, pos2.time);
-	//printf("Time diff: [%f]\n", pos2.time - pos1.time );
-
 	return pos2.time - pos1.time;
-
 }
 
 Position Person::get_position()
@@ -103,22 +97,16 @@ Position Person::get_position()
 	return positions.back();
 }
 
+//Returns the first position with a time stamp - current time > time diff
 Position Person::get_earlier_position(float time_diff)
 {
-	//int time_diff= 1; //in seconds;
 	int current_time = get_position().time;
 
 	std::vector<Position>::iterator it = positions.end();
 	it--;
 
-	//printf("vector size: %i", positions.size());
-	//printf("Time diff: %f \n", get_time_diff(*it, get_position()));
-
-	//while (time_diff > current_time - it->header.stamp.sec && it != positions.begin())
 	while (time_diff > get_time_diff(*it, get_position()) && it != positions.begin())
 	{
-		//printf("Time1: [%f], time2: [%f]\n",it->time, get_position().time);
-		//printf("Time diff: %f \n", get_time_diff(*it, get_position()));
 		it--;
 	}
 
@@ -126,32 +114,21 @@ Position Person::get_earlier_position(float time_diff)
 
 }
 
+
 double Person::get_speed()
 {
 	Position prev_pos = get_earlier_position(0.5);
 	Position curr_pos = get_position();
 
 	return prev_pos.get_distance_to_position(curr_pos)/get_time_diff(prev_pos,curr_pos);
-
-/*
-	double speed_head = distance_between_positions_head(prev_pos,curr_pos)/get_time_diff(prev_pos, curr_pos);
-	double speed_spine = distance_between_positions_spine(prev_pos,curr_pos)/get_time_diff(prev_pos, curr_pos);
-
-	return (speed_spine + speed_head )/2;
-	*/
 }
+
 
 double Person::get_speed(Position prev_pos, Position curr_pos)
 {
 	return prev_pos.get_distance_to_position(curr_pos)/get_time_diff(prev_pos,curr_pos);
-
-/*
-	double speed_head = distance_between_positions_head(prev_pos,curr_pos)/get_time_diff(prev_pos, curr_pos);
-	double speed_spine = distance_between_positions_spine(prev_pos,curr_pos)/get_time_diff(prev_pos, curr_pos);
-
-	return (speed_spine + speed_head )/2;
-	*/
 }
+
 
 double Person::get_distance_to_cyborg()
 {
@@ -162,17 +139,12 @@ double Person::get_distance_to_cyborg()
 }
 
 
-/*
-double Person::distance_between_positions_head(Position pos1, Position pos2)
+double Person::get_distance_to_person(Person person)
 {
-	return sqrt( pow(pos2.head.x - pos1.head.x ,2) + pow(pos2.head.y - pos1.head.y ,2) + pow(pos2.head.z - pos1.head.z ,2) );
+	return get_position().get_distance_to_position(person.get_position());
 }
 
-double Person::distance_between_positions_spine(Position pos1, Position pos2)
-{
-	return sqrt( pow(pos2.spine_base.x - pos1.spine_base.x ,2) + pow(pos2.spine_base.y - pos1.spine_base.y ,2) + pow(pos2.spine_base.z - pos1.spine_base.z ,2) );
-}
-*/
+
 
 bool Person::is_slowing_down()
 {
@@ -217,16 +189,8 @@ bool Person::is_stationary()
 	else
 		return false;
 
-	/*
-	if(threshold > get_earlier_position(1).get_distance_to_position(get_position()))
-	{
-		return true;
-
-	}
-	else
-		return false;
-		*/
 }
+
 
 bool Person::is_moving_closer()
 {
@@ -239,8 +203,8 @@ bool Person::is_moving_closer()
 		return true;
 	else 
 		return false;
-
 }
+
 
 bool Person::is_moving_away()
 {
@@ -255,6 +219,7 @@ bool Person::is_moving_away()
 		return false;
 }
 
+
 bool Person::is_moving_away(double starting_time)
 {
 	double threshold = 0.05;
@@ -266,9 +231,9 @@ bool Person::is_moving_away(double starting_time)
 		return true;
 	else 
 		return false;
-
 }
 
+//more work is necessary here
 bool Person::is_interested()
 {
 	double social_distance = 1.5; //distance people approach the robot for interaction
@@ -285,7 +250,6 @@ bool Person::is_interested()
 		return true;
 
 
-
 	//case: person is leaving: not interested
 	else if (is_leaving())
 		return false; 
@@ -296,21 +260,25 @@ bool Person::is_interested()
 
 	else
 		return false;
-
-
 }
+
 
 bool Person::is_approaching()
 {
 	double approach_threshold = 1.5;
 
-	for(int i = 1; i < 8; i++)
+	if( !is_stationary() )
 	{
-		if(approach_threshold > estimate_future_position(i).get_distance_to_cyborg())
+		for(int i = 1; i < 4; i++)
 		{
-			return true;
+			if(approach_threshold > estimate_future_position(i).get_distance_to_cyborg())
+			{
+				return true;
+			}
 		}
+
 	}
+
 
 	return false;
 }
@@ -319,18 +287,28 @@ bool Person::is_approaching()
 bool Person::is_leaving()
 {
 
+	double leave_treshold = 1;
 
-	for(int i = 0; i < 2; i++)
+	if( !is_stationary() )
 	{
-		if(!is_moving_away(i))
+
+		if(leave_treshold < estimate_future_position(2).get_distance_to_cyborg())
 		{
-			return false;
+			return true;
 		}
+
 	}
 
-	return true;
+	return false;
+}
+
+// Returns true if person is not approaching and not leaving, for example by being stationary or walking around the cyborg.
+bool Person::is_keeping_distance()
+{
+	return !(is_approaching()) && !(is_leaving());
 
 }
+
 
 //updates position object with history states.
 void Person::add_history_to_pos()
@@ -347,28 +325,7 @@ void Person::add_history_to_pos()
 }
 
 
-/*
-Position Person::get_vector_between_points(Position pos1, Position pos2)
-{
-	Position vector = pos1;
 
-	vector.head.x = pos2.head.x - pos1.head.x;
-	vector.head.y = pos2.head.y - pos1.head.y;
-	vector.head.z = pos2.head.z - pos1.head.z;
- 
-	return vector;
-}
-
-
-Position Person::add_vector_to_position(Position pos, Position vector)
-{
-	pos.head.x = pos.head.x + vector.head.x;
-	pos.head.y = pos.head.y + vector.head.y;
-	pos.head.z = pos.head.z + vector.head.z;
-
-	return pos;
-}
-*/
 
 Position Person::guess_future_position()
 {
@@ -390,3 +347,36 @@ Position Person::estimate_future_position(double seconds)
 }
 
 
+
+
+// GROUP FUNCTIONS
+
+bool Person::is_in_group(int member)
+{
+	for (int i = 0; i < in_group_with.size(); i++)
+	{
+		if(member == in_group_with[i])
+		{
+			return true;
+		}
+
+	}
+
+	return false;
+
+}
+
+int Person::remove_member_from_group(int member)
+{
+	for (int i = 0; i < in_group_with.size(); i++)
+	{
+		if(member == in_group_with[i])
+		{
+			in_group_with.erase(in_group_with.begin() + i);
+			return 0;
+		}
+
+	}
+
+	return -1;
+}

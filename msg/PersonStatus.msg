@@ -3,6 +3,7 @@ bool interested
 bool approaching
 bool leaving
 bool stationary
+bool keeping_distance
 float64 speed
 float64 distance
 geometry_msgs/Point position

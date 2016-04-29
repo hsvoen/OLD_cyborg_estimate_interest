@@ -1,1 +1,0 @@
-bool[] interested_person

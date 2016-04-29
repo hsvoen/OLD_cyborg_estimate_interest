@@ -132,10 +132,7 @@ double Person::get_speed(Position prev_pos, Position curr_pos)
 
 double Person::get_distance_to_cyborg()
 {
-	
 	return get_position().get_distance_to_cyborg();
-	/*Position pos = get_position();
-	return sqrt( pow(pos.head.x,2) + pow(pos.head.y,2) + pow( pos.head.z,2));*/
 }
 
 
@@ -143,6 +140,9 @@ double Person::get_distance_to_person(Person person)
 {
 	return get_position().get_distance_to_position(person.get_position());
 }
+
+
+
 
 
 
@@ -179,7 +179,7 @@ bool Person::is_moving_faster()
 
 bool Person::is_stationary()
 {
-	double threshold = 0.2; 
+	double threshold = 0.1; 
 
 	if(threshold > get_speed())
 	{
@@ -199,7 +199,7 @@ bool Person::is_moving_closer()
 	double curr_dist = get_distance_to_cyborg();
 	double prev_dist = get_earlier_position(0.5).get_distance_to_cyborg();
 
-	if(curr_dist + threshold < prev_dist)
+	if(curr_dist + threshold < prev_dist && !is_stationary())
 		return true;
 	else 
 		return false;
@@ -208,68 +208,67 @@ bool Person::is_moving_closer()
 
 bool Person::is_moving_away()
 {
-	double threshold = 0.05;
+	double threshold = 0.1;
 
 	double curr_dist = get_distance_to_cyborg();
 	double prev_dist = get_earlier_position(0.5).get_distance_to_cyborg();
 
-	if(curr_dist > prev_dist + threshold)
+
+	if(curr_dist > prev_dist + threshold && !is_stationary())
 		return true;
 	else 
 		return false;
+	
 }
 
 
-bool Person::is_moving_away(double starting_time)
-{
-	double threshold = 0.05;
 
-	double curr_dist = get_earlier_position(starting_time).get_distance_to_cyborg();
-	double prev_dist = get_earlier_position(starting_time + 1).get_distance_to_cyborg();
-
-	if(curr_dist > prev_dist + threshold)
-		return true;
-	else 
-		return false;
-}
 
 //more work is necessary here
 bool Person::is_interested()
 {
-	double social_distance = 1.5; //distance people approach the robot for interaction
-	double hesitant_distance = 2;  // distance hesitant people will linger
-	double interested_speed = 0.5; //walking speed for people who are interested
-
+	double social_distance = 2; //distance people approach the robot for interaction
+	double hesitant_distance = 3;  // distance hesitant people will linger
+	double interested_speed = 0.35; //walking speed for people who are interested
+	double not_interested_speed = 1;
 	//case: person is close and stationary
-
+	// Very likely the person is interested.
 	if(social_distance > get_distance_to_cyborg() && is_stationary())
 		return true;
 
-	//case: person is approaching and slowing down or walking slownly
-	else if( is_approaching() && (is_slowing_down() || get_speed() <= interested_speed) )
-		return true;
+	//Case: not interested if: Moving away (leaving, passing by), speed is very high (busy, ignoring, walking past.)
 
-
-	//case: person is leaving: not interested
-	else if (is_leaving())
-		return false; 
-
-	//case: person is not approaching and not slowing down: not interested
-	else if (!is_approaching() || ! is_slowing_down() )
+	else if(get_speed() >= not_interested_speed || is_moving_away())
 		return false;
 
+
+	//Case: Is stationary, slowing down or walking slowly within the hesitant distance. Not if they are moving away.
+	// Possibly interested, but skeptical about approaching the Cyborg fully. 
+	//
+	// Can possibly be encouraged to approach if the cyborg encourages them with a greeting.
+	else if(hesitant_distance > get_distance_to_cyborg() && !is_moving_away() && ( is_stationary() || is_slowing_down() || get_speed() < interested_speed ) )
+		return true;
+
+	//case: person is outside the hesitant_distance and moving closer to the Cyborg and slowing down or walking slownly
+	// The person could be interested
+	else if( is_moving_closer() && (is_slowing_down() || get_speed() <= interested_speed) )
+		return true;
+
+	//Case: Not slowing down, moving away from the cyborg, moving too fast
 	else
 		return false;
 }
 
-
+/*
 bool Person::is_approaching()
 {
-	double approach_threshold = 1.5;
+	double approach_threshold = 2;
+
+
 
 	if( !is_stationary() )
 	{
-		for(int i = 1; i < 4; i++)
+		for(int i = 1; i < 6; i++)
 		{
 			if(approach_threshold > estimate_future_position(i).get_distance_to_cyborg())
 			{
@@ -308,6 +307,11 @@ bool Person::is_keeping_distance()
 	return !(is_approaching()) && !(is_leaving());
 
 }
+
+
+*/
+
+
 
 
 //updates position object with history states.

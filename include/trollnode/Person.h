@@ -41,8 +41,7 @@ public:
 	bool moving_away;
 
 	//Constructors
-		Position(){}
-
+	Position(){}
 	Position(geometry_msgs::Point head_pos, geometry_msgs::Point spine_base_pos , double seconds)
 	{
 		head = head_pos;
@@ -103,14 +102,13 @@ public:
 	bool is_moving_faster();
 	bool is_moving_closer(); //to the cyborg, [0,0,0]
 	bool is_moving_away();
-	bool is_moving_away(double starting_time);
 
 
 
 	bool is_interested(); //Function trying to guess if a person is interested in the cyborg from spatial relationship.
-	bool is_approaching(); 
-	bool is_leaving();
-	bool is_keeping_distance(); //True if person is not approaching and not leaving
+	//bool is_approaching(); 
+	//bool is_leaving();
+	//bool is_keeping_distance(); //True if person is not approaching and not leaving
 
 	//Get functions
 	Position get_position();

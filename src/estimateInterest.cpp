@@ -12,6 +12,9 @@
 	# TODO:
 		- Tune Interest, approach and leave functions
 		- Verify that they work
+		- Add hesitant category to seperate between very interested and slightly interested people
+		- seperating between people approaching the cyborg directly, or those moving towards and past it.
+			* People passing it will walk quickly?
 */
 
 #include "ros/ros.h"
@@ -121,6 +124,12 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 			else
 				ROS_INFO("Keeping speed");
 
+			if(person_array[i].is_moving_closer())
+				ROS_INFO("Moving closer");
+			else if(person_array[i].is_moving_away())
+				ROS_INFO("Moving away");
+			else
+				ROS_INFO("Keeping distance");
 
 			if(person_array[i].is_stationary())
 				ROS_INFO("Person is stationary");
@@ -128,20 +137,16 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 				ROS_INFO("Person is moving");
 
 
+/*
 			if(person_array[i].is_approaching())
 				ROS_INFO("Approaching the Cyborg");
 			else if (person_array[i].is_leaving())
 				ROS_INFO("Leaving the Cyborg");
 			else
 				ROS_INFO("Keeping distance");
-
+*/
 
 			person_array[i].get_position().print_position();
-			ROS_INFO("Distance from Cyborg:[%.3f]", person_array[i].get_distance_to_cyborg() );
-
-			ROS_INFO("Estimated future pos, 1 sec:");
-			person_array[i].estimate_future_position(1).print_position();
-			ROS_INFO("Distance to cyborg: [%.3f]\n",person_array[i].estimate_future_position(1).get_distance_to_cyborg());
 
 		}
 		else
@@ -159,7 +164,7 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 int main(int argc, char **argv)
 {
 
-	ros::init(argc, argv, "Interest node");
+	ros::init(argc, argv, "Interestnode");
 	ros::NodeHandle n;
 
 	//subscribers
@@ -183,10 +188,10 @@ int main(int argc, char **argv)
 			{
 				person_msg.tracked = true;
 				person_msg.interested = person_array[i].is_interested();
-				person_msg.approaching = person_array[i].is_approaching();
-				person_msg.leaving = person_array[i].is_leaving();
+				//person_msg.approaching = person_array[i].is_approaching();
+				//person_msg.leaving = person_array[i].is_leaving();
 				person_msg.stationary = person_array[i].is_stationary();
-				person_msg.keeping_distance = person_array[i].is_keeping_distance();
+				//person_msg.keeping_distance = person_array[i].is_keeping_distance();
 				person_msg.speed = person_array[i].get_speed();
 				person_msg.distance = person_array[i].get_distance_to_cyborg();
 				person_msg.position = person_array[i].get_position().head;

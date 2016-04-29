@@ -29,10 +29,14 @@ std::string people_status_topic_name = "person_status";
 
 std::string expression_topic_name = "trollExpression";
 
+
 enum Status {none = -1, tracked = 0, stationary = 1, approaching = 2, interested = 3};
+enum Direction {up, down, left, right, neutral};
 
 //Global variables
 
+Direction 		prev_direction = neutral;
+Direction 		new_direction = neutral;
 Status 			person_status = none;
 int 			person_to_look_at = -1;
 
@@ -55,24 +59,37 @@ void look_at_person(geometry_msgs::Point position)
 	if (position.x >= left_treshold)
 	{
 		dir_msg.look = "left";
+		new_direction = left;
 	}
 	else if (position.x <= right_treshold)
 	{
 		dir_msg.look = "right";
+		new_direction = right;
 	}
 	else if (position.y >= up_treshold)
 	{
 		dir_msg.look = "up";
+		new_direction = up;
 	}
 	else if (position.y <=  down_treshold)
 	{
 		dir_msg.look = "down";
+		new_direction = down;
 	}
 	else
+	{
 		dir_msg.look = "neutral";
+		new_direction = neutral;
+	}
 
-	ROS_INFO("Looking in [%s] direction", dir_msg.look.c_str());
-	looking_publisher.publish(dir_msg);
+	if(new_direction != prev_direction)
+	{
+		ROS_INFO("Looking in [%s] direction", dir_msg.look.c_str());
+		prev_direction = new_direction;
+		looking_publisher.publish(dir_msg);
+	}
+	else
+		ROS_INFO("Same looking direction as before");
 }
 
 

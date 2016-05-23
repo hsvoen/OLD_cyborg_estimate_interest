@@ -31,8 +31,9 @@ std::string people_status_topic_name = "person_status";
 struct interaction
 {
 	bool tracked;
-	bool greeted;
-	bool goodbye;
+	bool greeted; //when interested
+	bool encouraged; //when indecisive
+	bool goodbye; //when leaving
 };
 
 interaction people [6] = {};
@@ -41,6 +42,7 @@ interaction people [6] = {};
 ros::Publisher greeting_publisher;
 trollnode::Expression greeting_msg;
 trollnode::Expression goodbye_msg;
+trollnode::Expression indecisive_msg;
 
 
 
@@ -66,8 +68,16 @@ void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array
 				greeting_publisher.publish(greeting_msg);
 
 			}
+			else if( !(people[i].greeted) && !(people[i].encouraged) && !(people[i].goodbye) && person_array->people[i].indecisive )
+			{	
+				ROS_INFO("person [%d] encouraged", i);
+
+				people[i].encouraged = true;
+				greeting_publisher.publish(indecisive_msg);
+
+			}
 			//goodbye conditions: Greeted, not goodbye, not interested
-			else if( people[i].greeted && !(people[i].goodbye) && !(person_array->people[i].interested) )
+			else if( people[i].greeted && !(people[i].goodbye) && person_array->people[i].not_interested )
 			{
 				ROS_INFO("person [%d] given goodbye", i);
 				people[i].goodbye = true;
@@ -82,6 +92,7 @@ void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array
 			people[i].tracked = false;
 			people[i].greeted = false;
 			people[i].goodbye = false;
+			people[i].encouraged = false;
 		}
 	}
 
@@ -110,8 +121,11 @@ int main(int argc, char **argv)
 	goodbye_msg.speech = "See you later.";
 	goodbye_msg.expression = "sad";
 
+	indecisive_msg.speech = "Don't be afraid.";
+	indecisive_msg.expression = "smile";
+
 	greeting_msg.speech = "Hello, it is nice to meet you.";
-	greeting_msg.expression = "smile";
+	greeting_msg.expression = "happy";
 
 	ros::spin();
 

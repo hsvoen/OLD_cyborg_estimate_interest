@@ -43,52 +43,9 @@ std::string people_status_topic_name = "person_status";
 //Global variables
 Person person_array [6]{Person(0), Person(1), Person(2), Person(3), Person(4), Person(5)}; //stores data about all people tracked
 
+float speedlog = 0;
 
 
-
-// Old code for detecting groups
-
-//starting with detecting one group
-//bool[6] group;
-
-
-
-
-/* Arrays with integers of group numbers, check if standing close to any group members. Adding group number to Person?*/
-/*
-void find_groups(Person [] people_list)
-{
-	group_distance_treshold = 0.5;
-
-	//Salient information order: Distance (to any member)
-
-	for (int i = 0; i < 6; i++)
-	{
-
-		for (int j = 0; j < 6; j++)
-		{
-			if (people_list[i].is_tracked() && people_list[j].is_tracked)
-			{
-
-				//if close enough to be in a group, add member
-				if( group_distance_treshold > people_list[i].get_distance_to_person(people_list[j]))
-				{
-					people_list[i].add_group_member(j);
-
-				}
-				// In group, but no longer close enough, remove member
-				else if (people_list[i].is_in_group(j))
-				{
-					people_list[i].remove_group_member(j);
-				}
-
-			}
-		}
-
-	}
-
-}
-*/
 
 //callback function for body tracking topic. stores positions and prints info
 void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
@@ -112,11 +69,15 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 			ROS_INFO("Person: %d, time: [%f]",i, body_array->bodies[i].header.stamp.toSec());
 			ROS_INFO("Speed: [%f], distance [%f], ", person_array[i].get_speed(), person_array[i].get_distance_to_cyborg());
 
-			if(person_array[i].is_interested())
+			if(person_array[i].get_interested())
 				ROS_INFO("Person is interested");
-			else
+
+			if(person_array[i].get_indecisive())
+				ROS_INFO("Person is indecisive");
+			if(person_array[i].get_not_interested())
 				ROS_INFO("Person is not interested");
 
+/*
 			if(person_array[i].is_slowing_down())
 				ROS_INFO("Slowing down.");
 			else if (person_array[i].is_moving_faster())
@@ -124,6 +85,9 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 			else
 				ROS_INFO("Keeping speed");
 
+*/
+
+			
 			if(person_array[i].is_moving_closer())
 				ROS_INFO("Moving closer");
 			else if(person_array[i].is_moving_away())
@@ -147,10 +111,18 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 */
 
 			person_array[i].get_position().print_position();
+/*
+			if (person_array[i].get_speed()> speedlog)
+			{
+				speedlog = person_array[i].get_speed();
+			}
+			printf("max speed: %f\n", speedlog);
 
+			*/
 		}
 		else
 			person_array[i].not_tracked();
+
 
 	}
 	if(people_tracked > 0)
@@ -173,7 +145,7 @@ int main(int argc, char **argv)
 	//Publishers
 	ros::Publisher people_status_publisher = n.advertise<trollnode::PersonArray>(people_status_topic_name, 10); 
 
-	ros::Rate loop_rate(0.5);
+	ros::Rate loop_rate(10);
 
 	while(ros::ok())
 	{
@@ -187,13 +159,16 @@ int main(int argc, char **argv)
 			if (person_array[i].is_tracked() )
 			{
 				person_msg.tracked = true;
-				person_msg.interested = person_array[i].is_interested();
-				//person_msg.approaching = person_array[i].is_approaching();
-				//person_msg.leaving = person_array[i].is_leaving();
-				person_msg.stationary = person_array[i].is_stationary();
-				//person_msg.keeping_distance = person_array[i].is_keeping_distance();
-				person_msg.speed = person_array[i].get_speed();
-				person_msg.distance = person_array[i].get_distance_to_cyborg();
+
+				//Classify interest
+				person_array[i].estimate_interest();
+
+				person_msg.interested = person_array[i].get_interested();
+				person_msg.indecisive = person_array[i].get_indecisive();
+				person_msg.not_interested = person_array[i].get_not_interested();
+				//person_msg.stationary = person_array[i].is_stationary();
+				//person_msg.speed = person_array[i].get_speed();
+				//person_msg.distance = person_array[i].get_distance_to_cyborg();
 				person_msg.position = person_array[i].get_position().head;
 
 				status_list_msg.people.push_back(person_msg);

@@ -21,6 +21,15 @@ class Person;
 
 //===========================
 
+
+
+
+//===============
+//global variables, used for classifying people's interest
+
+
+
+
 // Stores point [x,y,z] information about the head and spine position of a person relative to the cyborg.
 class Position{
 
@@ -74,7 +83,11 @@ class Person
 	int 	number; 	//Number of person from kinect, randomly assigned. between 0-5. 
 	bool 	isTracked;	//The person is tracked by the kinect. Always check if a person is tracked before doing something.
 
-	std::vector<int> in_group_with;
+	//Variables storing interest
+	bool	interested;
+	bool	indecisive;
+	bool	not_interested;
+
 	std::vector<Position> positions;
 
 public:
@@ -89,12 +102,6 @@ public:
 	void add_history_to_pos();
 	
 
-	//Group functions
-	void add_group_member(int member){in_group_with.push_back(member);} //need a remove group member at some point
-	bool is_in_group(int member);
-	int remove_member_from_group(int member);
-	std::vector<int> get_group_members(){return in_group_with;}
-
 	//What the person is doing.
 	bool is_tracked(){return isTracked;}
 	bool is_stationary();
@@ -102,12 +109,15 @@ public:
 	bool is_moving_faster();
 	bool is_moving_closer(); //to the cyborg, [0,0,0]
 	bool is_moving_away();
+	bool is_leaving();
+	bool is_approaching(); 
 
+	void estimate_interest();
 
 
 	bool is_interested(); //Function trying to guess if a person is interested in the cyborg from spatial relationship.
-	//bool is_approaching(); 
-	//bool is_leaving();
+	bool is_indecisive();
+	bool is_not_interested();
 	//bool is_keeping_distance(); //True if person is not approaching and not leaving
 
 	//Get functions
@@ -120,6 +130,9 @@ public:
 	double get_distance_to_cyborg();
 	double get_distance_to_person(Person);
 
+	bool get_interested(){return interested;}
+	bool get_indecisive(){return indecisive;}
+	bool get_not_interested(){return not_interested;}
 
 	Position guess_future_position();
 	Position estimate_future_position(double seconds);

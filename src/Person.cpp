@@ -52,6 +52,7 @@ Position Position::multiply_vector_with_number(double number)
 	return *this;
 }
 
+/*
 // returns avg. distance of head and spine to position
 double Position::get_distance_to_position(Position pos)
 {
@@ -61,14 +62,32 @@ double Position::get_distance_to_position(Position pos)
 	
 	return (dist_head + dist_spine)/2;
 }
+*/
 
-
-/*Returns avg distance of head and spine to [0,0,0]*/
-double Position::get_distance_to_cyborg()
+//Ignores height distance!!!
+// returns avg. distance of head and spine to position.
+double Position::get_distance_to_position(Position pos)
 {
 
-	return (sqrt ( pow(head.x,2) + pow(head.y,2) + pow( head.z,2)) + sqrt(pow(spine_base.x,2) + pow(spine_base.y,2) + pow(spine_base.z,2) ) )/2 ;
+	double dist_head = sqrt( pow(pos.head.x - head.x ,2)  + pow(pos.head.z - head.z ,2) );
+	double dist_spine = sqrt( pow(pos.spine_base.x - spine_base.x ,2) + pow(pos.spine_base.z - spine_base.z ,2) );
+	
+	return (dist_head + dist_spine)/2;
+}
 
+/*
+//Returns avg distance of head and spine to [0,0,0]
+double Position::get_distance_to_cyborg()
+{
+	return (sqrt ( pow(head.x,2) + pow(head.y,2) + pow( head.z,2)) + sqrt(pow(spine_base.x,2) + pow(spine_base.y,2) + pow(spine_base.z,2) ) )/2 ;
+}
+*/
+
+//IGNORES HEIGHT!!!
+//Returns avg distance of head and spine to [0,0,0]
+double Position::get_distance_to_cyborg()
+{
+	return (sqrt ( pow(head.x,2)  + pow( head.z,2)) + sqrt(pow(spine_base.x,2) + pow(spine_base.z,2) ) )/2 ;
 }
 
 void Position::print_position()
@@ -130,6 +149,8 @@ double Person::get_speed(Position prev_pos, Position curr_pos)
 }
 
 
+
+
 double Person::get_distance_to_cyborg()
 {
 	return get_position().get_distance_to_cyborg();
@@ -179,7 +200,7 @@ bool Person::is_moving_faster()
 
 bool Person::is_stationary()
 {
-	double threshold = 0.1; 
+	double threshold = 0.15; 
 
 	if(threshold > get_speed())
 	{
@@ -194,7 +215,7 @@ bool Person::is_stationary()
 
 bool Person::is_moving_closer()
 {
-	double threshold = 0.1;
+	double threshold = 0.15;
 
 	double curr_dist = get_distance_to_cyborg();
 	double prev_dist = get_earlier_position(0.5).get_distance_to_cyborg();
@@ -208,7 +229,7 @@ bool Person::is_moving_closer()
 
 bool Person::is_moving_away()
 {
-	double threshold = 0.1;
+	double threshold = 0.15;
 
 	double curr_dist = get_distance_to_cyborg();
 	double prev_dist = get_earlier_position(0.5).get_distance_to_cyborg();
@@ -224,63 +245,123 @@ bool Person::is_moving_away()
 
 
 
-//more work is necessary here
 bool Person::is_interested()
 {
-	double social_distance = 2; //distance people approach the robot for interaction
-	double hesitant_distance = 3;  // distance hesitant people will linger
-	double interested_speed = 0.35; //walking speed for people who are interested
-	double not_interested_speed = 1;
+double social_distance = 2.5; //People standing inside this radius is classified as interested
+double public_distance = 3.5; //distance people approach the robot for interaction
+double fast_speed = 0.8;
+
+
 	//case: person is close and stationary
 	// Very likely the person is interested.
 	if(social_distance > get_distance_to_cyborg() && is_stationary())
 		return true;
 
-	//Case: not interested if: Moving away (leaving, passing by), speed is very high (busy, ignoring, walking past.)
-
-	else if(get_speed() >= not_interested_speed || is_moving_away())
-		return false;
-
-
-	//Case: Is stationary, slowing down or walking slowly within the hesitant distance. Not if they are moving away.
-	// Possibly interested, but skeptical about approaching the Cyborg fully. 
-	//
-	// Can possibly be encouraged to approach if the cyborg encourages them with a greeting.
-	else if(hesitant_distance > get_distance_to_cyborg() && !is_moving_away() && ( is_stationary() || is_slowing_down() || get_speed() < interested_speed ) )
+	//Moving close within public distance
+	else if (public_distance > get_distance_to_cyborg() && is_moving_closer() )
 		return true;
 
-	//case: person is outside the hesitant_distance and moving closer to the Cyborg and slowing down or walking slownly
-	// The person could be interested
-	else if( is_moving_closer() && (is_slowing_down() || get_speed() <= interested_speed) )
-		return true;
-
-	//Case: Not slowing down, moving away from the cyborg, moving too fast
 	else
 		return false;
+
+
 }
 
-/*
+
+
+
+bool Person::is_indecisive()
+{
+double social_distance = 2.5; //People standing inside this radius is classified as interested
+double public_distance = 3.5; //distance people approach the robot for interaction
+double fast_speed = 0.8;
+
+
+	//Case: Within public distance, not approaching, not leaving and not walking fast
+	if( public_distance > get_distance_to_cyborg() && ! is_moving_closer() && ! is_moving_away() && get_speed() < fast_speed)
+		return true;
+	//Case: outside of public distance and approaching
+	else if (public_distance < get_distance_to_cyborg() && is_moving_closer() )
+		return true;
+	else
+		return false;
+
+}
+
+
+bool Person::is_not_interested()
+{
+double social_distance = 2.5; //People standing inside this radius is classified as interested
+double public_distance = 3.5; //distance people approach the robot for interaction
+double fast_speed = 0.8;
+	//Case: Is moving away from the cyborg
+	if(is_leaving())
+	{
+		return true;
+	}
+	//Case: is far away and not approaching
+	else if(public_distance < get_distance_to_cyborg() && !is_moving_closer())
+	{
+
+		return true;
+	}
+	//Case: Is close, passing and walking fast
+	else if(public_distance < get_distance_to_cyborg() && !is_moving_closer() && !is_moving_away() && get_speed() < fast_speed)
+		{
+			return true;
+		}
+	else
+		return false;
+
+
+
+}
+
+
+void Person::estimate_interest()
+{
+	if(is_interested())
+	{
+		interested = true;
+		indecisive = false;
+		not_interested = false;
+	}
+	else if(is_indecisive())
+	{
+		interested = false;
+		indecisive = true;
+		not_interested = false;
+	}
+	else if(is_not_interested())
+	{
+		interested = false;
+		indecisive = false;
+		not_interested = true;
+	}
+}
+
+
+
 bool Person::is_approaching()
 {
-	double approach_threshold = 2;
-
-
+	//double approach_threshold = 1;
 
 	if( !is_stationary() )
 	{
-		for(int i = 1; i < 6; i++)
+
+		if(get_distance_to_cyborg() > estimate_future_position(1).get_distance_to_cyborg())
 		{
-			if(approach_threshold > estimate_future_position(i).get_distance_to_cyborg())
-			{
-				return true;
-			}
+			return true;
 		}
 
 	}
 
-
 	return false;
 }
+
+
+
+
 
 //Could also check if estimated future position is away from the cyborg.
 bool Person::is_leaving()
@@ -291,7 +372,7 @@ bool Person::is_leaving()
 	if( !is_stationary() )
 	{
 
-		if(leave_treshold < estimate_future_position(2).get_distance_to_cyborg())
+		if(get_distance_to_cyborg() < estimate_future_position(1).get_distance_to_cyborg())
 		{
 			return true;
 		}
@@ -300,16 +381,6 @@ bool Person::is_leaving()
 
 	return false;
 }
-
-// Returns true if person is not approaching and not leaving, for example by being stationary or walking around the cyborg.
-bool Person::is_keeping_distance()
-{
-	return !(is_approaching()) && !(is_leaving());
-
-}
-
-
-*/
 
 
 
@@ -351,36 +422,3 @@ Position Person::estimate_future_position(double seconds)
 }
 
 
-
-
-// GROUP FUNCTIONS
-
-bool Person::is_in_group(int member)
-{
-	for (int i = 0; i < in_group_with.size(); i++)
-	{
-		if(member == in_group_with[i])
-		{
-			return true;
-		}
-
-	}
-
-	return false;
-
-}
-
-int Person::remove_member_from_group(int member)
-{
-	for (int i = 0; i < in_group_with.size(); i++)
-	{
-		if(member == in_group_with[i])
-		{
-			in_group_with.erase(in_group_with.begin() + i);
-			return 0;
-		}
-
-	}
-
-	return -1;
-}

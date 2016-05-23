@@ -30,7 +30,7 @@ std::string people_status_topic_name = "person_status";
 std::string expression_topic_name = "trollExpression";
 
 
-enum Status {none = -1, tracked = 0, stationary = 1, approaching = 2, interested = 3};
+enum Status {none = -1, tracked = 0, stationary = 1, indecisive = 2, interested = 3};
 enum Direction {up, down, left, right, neutral};
 
 //Global variables
@@ -113,10 +113,10 @@ void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array
 				person_to_look_at = i;
 				person_status = interested;
 			}
-			else if(person_array->people[i].approaching && person_status <= approaching)
+			else if(person_array->people[i].indecisive && person_status <= indecisive)
 			{
 				person_to_look_at = i;
-				person_status = approaching;
+				person_status = indecisive;
 			}
 			else if(person_array->people[i].stationary && person_status <= stationary)
 			{

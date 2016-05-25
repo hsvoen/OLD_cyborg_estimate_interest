@@ -100,7 +100,6 @@ include_directories(
  add_library(trollnode
    #src/${PROJECT_NAME}/trollnode.cpp
    src/Person.cpp
-   src/setExpressionFunc.cpp
  )
 
 
@@ -117,9 +116,13 @@ target_link_libraries(greetingNode ${catkin_LIBRARIES})
 add_dependencies(greetingNode trollnode_generate_messages_cpp)
 
 
-add_executable(setExpression src/setExpression.cpp src/setExpressionFunc.cpp)
-target_link_libraries(setExpression ${catkin_LIBRARIES} ${OpenCV_LIBS})
+add_executable(setExpression src/setExpression.cpp )
+target_link_libraries(setExpression ${catkin_LIBRARIES} )
 add_dependencies(setExpression  trollnode_generate_messages_cpp )
+
+add_executable(sendVideo src/sendVideo.cpp )
+target_link_libraries(sendVideo ${catkin_LIBRARIES} ${OpenCV_LIBS})
+add_dependencies(sendVideo  trollnode_generate_messages_cpp )
 
 
 add_executable(estimateInterest src/estimateInterest.cpp src/Person.cpp)

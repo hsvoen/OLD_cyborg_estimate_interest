@@ -52,7 +52,7 @@ roslaunch_add_file_check(launch)
    FILES
    Expression.msg
    PersonArray.msg
-   PersonStatus.msg
+   PersonInterest.msg
  )
 
 

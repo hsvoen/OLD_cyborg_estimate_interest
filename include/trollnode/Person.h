@@ -24,9 +24,6 @@ class Person;
 
 
 
-//===============
-//global variables, used for classifying people's interest
-
 
 
 
@@ -38,16 +35,6 @@ public:
 	geometry_msgs::Point spine_base;
 	double time; //ROS time for message being published, in seconds.
 
-	//History of person
-	double speed;
-	double cyborg_distance;
-
-	//add history to positions for easier tuning
-	bool stationary;
-	bool slowing_down;
-	bool speeding_up;
-	bool moving_closer;
-	bool moving_away;
 
 	//Constructors
 	Position(){}
@@ -58,12 +45,6 @@ public:
 		time = seconds;
 	}
 	Position(const Position &pos){head = pos.head; spine_base = pos.spine_base; time = pos.time;}
-
-
-	//Functions
-	Position add_vector(Position vector);
-	Position get_vector_to_pos(Position pos);
-	Position multiply_vector_with_number(double number);
 
 	//get functions
 	double get_distance_to_position(Position);
@@ -86,6 +67,7 @@ class Person
 	//Variables storing interest
 	bool	interested;
 	bool	indecisive;
+	bool 	hesitating;
 	bool	not_interested;
 
 	std::vector<Position> positions;
@@ -96,46 +78,39 @@ public:
 	Person(int person_number, bool tracked) {number = person_number; isTracked = tracked;}
 
 	void tracked(){isTracked = true;}
-	void not_tracked(){isTracked = false; positions.clear(); } //deletes the position history
+	void not_tracked(){isTracked = false; positions.clear(); interested = false; indecisive = false; hesitating = false; not_interested = false;} //deletes the position history
 
-	int add_position(Position pos){ positions.push_back(pos); add_history_to_pos();}
-	void add_history_to_pos();
+	int add_position(Position pos){ positions.push_back(pos);}
 	
 
 	//What the person is doing.
-	bool is_tracked(){return isTracked;}
 	bool is_stationary();
-	bool is_slowing_down();
-	bool is_moving_faster();
+	bool is_stationary(double seconds);
 	bool is_moving_closer(); //to the cyborg, [0,0,0]
 	bool is_moving_away();
-	bool is_leaving();
-	bool is_approaching(); 
 
 	void estimate_interest();
-
-
 	bool is_interested(); //Function trying to guess if a person is interested in the cyborg from spatial relationship.
 	bool is_indecisive();
+	bool is_hesitating();
 	bool is_not_interested();
-	//bool is_keeping_distance(); //True if person is not approaching and not leaving
+
 
 	//Get functions
 	Position get_position();
 	Position get_earlier_position(float time_diff);
 
+	bool get_tracked(){return isTracked;}
 	double get_time_diff(Position, Position);
 	double get_speed();
 	double get_speed(Position, Position);
 	double get_distance_to_cyborg();
-	double get_distance_to_person(Person);
 
 	bool get_interested(){return interested;}
 	bool get_indecisive(){return indecisive;}
+	bool get_hesitating(){return hesitating;}
 	bool get_not_interested(){return not_interested;}
 
-	Position guess_future_position();
-	Position estimate_future_position(double seconds);
 
 };
 

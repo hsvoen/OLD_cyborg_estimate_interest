@@ -7,14 +7,8 @@
 		- /head/kinect2/bodyArray
 
 	Publishes to:
-		- person_status
+		- people_interest
 
-	# TODO:
-		- Tune Interest, approach and leave functions
-		- Verify that they work
-		- Add hesitant category to seperate between very interested and slightly interested people
-		- seperating between people approaching the cyborg directly, or those moving towards and past it.
-			* People passing it will walk quickly?
 */
 
 #include "ros/ros.h"
@@ -25,7 +19,7 @@
 
 
 //Messages
-#include "trollnode/PersonStatus.h"
+#include "trollnode/PersonInterest.h"
 #include "trollnode/PersonArray.h"
 #include "k2_client/BodyArray.h"
 #include "geometry_msgs/Point.h"
@@ -37,7 +31,7 @@
 
 //Topic names
 std::string bodyTopicName = "/head/kinect2/bodyArray";
-std::string people_status_topic_name = "person_status";
+std::string people_status_topic_name = "people_interest";
 
 
 //Global variables
@@ -74,18 +68,13 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 
 			if(person_array[i].get_indecisive())
 				ROS_INFO("Person is indecisive");
+
+			if(person_array[i].get_hesitating())
+				ROS_INFO("Person is hesitating");
+
 			if(person_array[i].get_not_interested())
 				ROS_INFO("Person is not interested");
 
-/*
-			if(person_array[i].is_slowing_down())
-				ROS_INFO("Slowing down.");
-			else if (person_array[i].is_moving_faster())
-				ROS_INFO("speeding up");
-			else
-				ROS_INFO("Keeping speed");
-
-*/
 
 			
 			if(person_array[i].is_moving_closer())
@@ -101,24 +90,8 @@ void bodyListener(const k2_client::BodyArray::ConstPtr& body_array)
 				ROS_INFO("Person is moving");
 
 
-/*
-			if(person_array[i].is_approaching())
-				ROS_INFO("Approaching the Cyborg");
-			else if (person_array[i].is_leaving())
-				ROS_INFO("Leaving the Cyborg");
-			else
-				ROS_INFO("Keeping distance");
-*/
-
 			person_array[i].get_position().print_position();
-/*
-			if (person_array[i].get_speed()> speedlog)
-			{
-				speedlog = person_array[i].get_speed();
-			}
-			printf("max speed: %f\n", speedlog);
 
-			*/
 		}
 		else
 			person_array[i].not_tracked();
@@ -155,8 +128,8 @@ int main(int argc, char **argv)
 		
 		for (int i = 0; i < 6; i++)
 		{
-			trollnode::PersonStatus person_msg;
-			if (person_array[i].is_tracked() )
+			trollnode::PersonInterest person_msg;
+			if (person_array[i].get_tracked() )
 			{
 				person_msg.tracked = true;
 
@@ -165,11 +138,8 @@ int main(int argc, char **argv)
 
 				person_msg.interested = person_array[i].get_interested();
 				person_msg.indecisive = person_array[i].get_indecisive();
+				person_msg.hesitating = person_array[i].get_hesitating();
 				person_msg.not_interested = person_array[i].get_not_interested();
-				//person_msg.stationary = person_array[i].is_stationary();
-				//person_msg.speed = person_array[i].get_speed();
-				//person_msg.distance = person_array[i].get_distance_to_cyborg();
-				person_msg.position = person_array[i].get_position().head;
 
 				status_list_msg.people.push_back(person_msg);
 			}

@@ -4,7 +4,7 @@
 	as long as tracking persists.
 
 	Subscribes to:
-		- person_status
+		- people_interest
 
 	Publishes to:
 		- trollExpression
@@ -20,12 +20,12 @@
 //Message files
 #include "std_msgs/String.h"
 #include "trollnode/Expression.h"
-#include "trollnode/PersonStatus.h"
+#include "trollnode/PersonInterest.h"
 #include "trollnode/PersonArray.h"
 
 //Topic names
 std::string expression_topic_name = "trollExpression";
-std::string people_status_topic_name = "person_status";
+std::string people_status_topic_name = "people_interest";
 
 
 struct interaction

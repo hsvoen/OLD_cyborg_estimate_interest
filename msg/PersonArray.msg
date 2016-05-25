@@ -1,2 +1,2 @@
-PersonStatus[] people
+PersonInterest[] people
 

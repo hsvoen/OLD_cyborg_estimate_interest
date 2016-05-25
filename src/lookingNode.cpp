@@ -4,7 +4,7 @@
 	If no people are tracked, it looks straight ahead.
 
 	Subscribes to:
-		- person_status
+		- people_interest
 
 	Publishes to:
 		- trollExpression
@@ -20,17 +20,17 @@
 //Ros message files
 #include "std_msgs/String.h"
 #include "trollnode/Expression.h"
-#include "trollnode/PersonStatus.h"
+#include "trollnode/PersonInterest.h"
 #include "trollnode/PersonArray.h"
 #include "geometry_msgs/Point.h"
 
 //ROS topic names
-std::string people_status_topic_name = "person_status";
+std::string people_interest_topic_name = "people_interest";
 
 std::string expression_topic_name = "trollExpression";
 
 
-enum Status {none = -1, tracked = 0, stationary = 1, indecisive = 2, interested = 3};
+enum Status {none = -1, tracked = 0, indecisive = 1, hesitating = 2, interested = 3};
 enum Direction {up, down, left, right, neutral};
 
 //Global variables
@@ -95,10 +95,10 @@ void look_at_person(geometry_msgs::Point position)
 
 
 
-void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array)
+void people_interest_listener(const trollnode::PersonArray::ConstPtr& person_array)
 {
 
-	//look at interested person first, then approaching, stationary then tracked
+	//look at interested person first, then hesitating, then indecisive then tracked
 	person_to_look_at = -1;
 	person_status = none;
 	for (int i = 0; i < 6; i++)
@@ -113,15 +113,15 @@ void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array
 				person_to_look_at = i;
 				person_status = interested;
 			}
+			else if(person_array->people[i].hesitating && person_status <= hesitating)
+			{
+				person_to_look_at = i;
+				person_status = hesitating;
+			}
 			else if(person_array->people[i].indecisive && person_status <= indecisive)
 			{
 				person_to_look_at = i;
 				person_status = indecisive;
-			}
-			else if(person_array->people[i].stationary && person_status <= stationary)
-			{
-				person_to_look_at = i;
-				person_status = stationary;
 			}
 			else
 			{
@@ -134,7 +134,7 @@ void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array
 
 	if(person_status > none)
 	{
-		look_at_person(person_array->people[person_to_look_at].position);
+		//look_at_person(person_array->people[person_to_look_at].position);
 	}
 
 }
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 	looking_publisher = n.advertise<trollnode::Expression>(expression_topic_name, 10); 
 
 	//Listener
-	ros::Subscriber people_status_sub = n.subscribe(people_status_topic_name, 10, people_status_listener);
+	ros::Subscriber people_interest_sub = n.subscribe(people_interest_topic_name, 10, people_interest_listener);
 
 
 	ros::spin();

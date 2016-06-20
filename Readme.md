@@ -1,5 +1,5 @@
 # estimate_interest
-ROS node for estimating if a person is interested in interacting with the cyborg or not. It uses positional data gathered from kinect, but could in theory work just as well with some adaptation with other sensors that publish the positional data of a person in [x,y,z] coordinates.
+ROS node for estimating if a person is interested in interacting with the cyborg or not. It uses positional data gathered from kinect, but could in theory work just as well with some adaptation with other sensors that publish the positional data of a person in [x,y,z] coordinates. The classification is explained on the [Cyborg Wiki](https://www.ntnu.no/wiki/display/cyborg/l.+Interest+detection)
 
 
 The estimate_interest node is made for [ROS Hydro](http://wiki.ros.org/hydro) on Ubuntu 12.04, and probably won't work on other setups. It is written in C++03, as that's what ROS Hydro uses, and trying to use something newer would most likely lead to compatibility problems or mess up Catkin. Use catkin_make to build it.

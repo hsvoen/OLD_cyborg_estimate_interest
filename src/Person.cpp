@@ -1,5 +1,5 @@
 
-#include "trollnode/Person.h"
+#include "estimate_interest/Person.h"
 
 
 //============================== Position class functions =================

@@ -10,8 +10,7 @@
 		- trollExpression
 
 	# TODO:
-		- Adding granaluarity to which direction (looking a little to the right or a lot to the right)
-		- Combining directions (up AND right)
+		- Subscribe to k2_client so it knows which direction the person is.			-
 */
 
 
@@ -20,8 +19,8 @@
 //Ros message files
 #include "std_msgs/String.h"
 #include "trollnode/Expression.h"
-#include "trollnode/PersonInterest.h"
-#include "trollnode/PersonArray.h"
+#include "estimate_interest/PersonInterest.h"
+#include "estimate_interest/PersonArray.h"
 #include "geometry_msgs/Point.h"
 
 //ROS topic names
@@ -54,7 +53,7 @@ float down_treshold 	= 0;
 // if the position exceeds a treshold value in left, right, up, or down order. If not, a neutral message is sent
 void look_at_person(geometry_msgs::Point position)
 {
-	trollnode::Expression dir_msg;
+	estimate_interest::Expression dir_msg;
 
 	if (position.x >= left_treshold)
 	{
@@ -95,7 +94,7 @@ void look_at_person(geometry_msgs::Point position)
 
 
 
-void people_interest_listener(const trollnode::PersonArray::ConstPtr& person_array)
+void people_interest_listener(const estimate_interest::PersonArray::ConstPtr& person_array)
 {
 
 	//look at interested person first, then hesitating, then indecisive then tracked

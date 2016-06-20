@@ -11,7 +11,7 @@
 
 	#TODO: 
 		- Publish an interaction topic saying what interactions have taken place with people.
-
+		
 */
 
 
@@ -20,8 +20,8 @@
 //Message files
 #include "std_msgs/String.h"
 #include "trollnode/Expression.h"
-#include "trollnode/PersonInterest.h"
-#include "trollnode/PersonArray.h"
+#include "estimate_interest/PersonInterest.h"
+#include "estimate_interest/PersonArray.h"
 
 //Topic names
 std::string expression_topic_name = "trollExpression";
@@ -48,7 +48,7 @@ trollnode::Expression indecisive_msg;
 
 
 
-void people_status_listener(const trollnode::PersonArray::ConstPtr& person_array)
+void people_status_listener(const estimate_interest::PersonArray::ConstPtr& person_array)
 {
 
 	for (int i = 0; i < 6; i++)

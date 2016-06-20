@@ -1,26 +1,19 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(trollnode)
+project(estimate_interest)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   std_msgs
-  sensor_msgs
   geometry_msgs
   message_generation
-  image_transport
-  cv_bridge
   k2_client
-  roslaunch
 )
-find_package( OpenCV  REQUIRED )
 
 
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
-roslaunch_add_file_check(launch)
 
 
 ################################################
@@ -50,7 +43,6 @@ roslaunch_add_file_check(launch)
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   Expression.msg
    PersonArray.msg
    PersonInterest.msg
  )
@@ -60,7 +52,6 @@ roslaunch_add_file_check(launch)
  generate_messages(
    DEPENDENCIES
    std_msgs
-   sensor_msgs
    geometry_msgs
  )
 
@@ -77,8 +68,8 @@ roslaunch_add_file_check(launch)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES trollnode
-   CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs sensor_msgs image_transport  cv_bridge
+  LIBRARIES estimate_interest
+   CATKIN_DEPENDS roscpp std_msgs geometry_msgs   
 #  DEPENDS system_lib
    CATKIN_DEPENDS message_runtime
 )
@@ -93,38 +84,28 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
   "${PROJECT_SOURCE_DIR}/include"
-  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
- add_library(trollnode
-   #src/${PROJECT_NAME}/trollnode.cpp
-   src/Person.cpp
- )
+# add_library(estimateInterest
+ #  src/Person.cpp
+ #)
 
 
-add_executable(publishExpression src/publishExpression.cpp)
-target_link_libraries(publishExpression ${catkin_LIBRARIES})
-add_dependencies(publishExpression trollnode_generate_messages_cpp)
-
-add_executable(lookingNode src/lookingNode.cpp)
-target_link_libraries(lookingNode ${catkin_LIBRARIES})
-add_dependencies(lookingNode trollnode_generate_messages_cpp)
-
-add_executable(greetingNode src/greetingNode.cpp)
-target_link_libraries(greetingNode ${catkin_LIBRARIES})
-add_dependencies(greetingNode trollnode_generate_messages_cpp)
 
 
-add_executable(setExpression src/setExpression.cpp )
-target_link_libraries(setExpression ${catkin_LIBRARIES} )
-add_dependencies(setExpression  trollnode_generate_messages_cpp )
 
-add_executable(sendVideo src/sendVideo.cpp )
-target_link_libraries(sendVideo ${catkin_LIBRARIES} ${OpenCV_LIBS})
-add_dependencies(sendVideo  trollnode_generate_messages_cpp )
+add_executable(classifyInterest src/classifyInterest.cpp src/Person.cpp)
+target_link_libraries(classifyInterest ${catkin_LIBRARIES} )
+add_dependencies(classifyInterest  estimate_interest_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
 
 
-add_executable(estimateInterest src/estimateInterest.cpp src/Person.cpp)
-target_link_libraries(estimateInterest ${catkin_LIBRARIES} )
-add_dependencies(estimateInterest  trollnode_generate_messages_cpp ${catkin_EXPORTED_TARGETS})
+
+
+#add_executable(lookingNode src/lookingNode.cpp)
+#target_link_libraries(lookingNode ${catkin_LIBRARIES})
+#add_dependencies(lookingNode estimate_interest_generate_messages_cpp)
+
+#add_executable(greetingNode src/greetingNode.cpp)
+#target_link_libraries(greetingNode ${catkin_LIBRARIES})
+#add_dependencies(greetingNode estimate_interest_generate_messages_cpp)
